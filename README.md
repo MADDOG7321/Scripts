@@ -1,4 +1,8 @@
 # Scripts
+## 'IP to binary.py'
+Converts IP addresses to binary.
+NOTE: input must be formatted correctly and be a valid ip address eg. 0.0.0.0 -> 255.255.255.255.
+
 ## 'ping logger for domain computers.ps1'
 A very basic powershell script for logging of pings to an IP or domain name. Not suitable for running on a large number of hosts as you can understand that would consume alot of bandwidth.
 
