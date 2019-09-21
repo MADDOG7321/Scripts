@@ -1,3 +1,5 @@
+#TCP server for sending files
+
 from socket import *
 from time import ctime
 import os
