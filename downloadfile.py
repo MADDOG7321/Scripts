@@ -1,5 +1,4 @@
-#Simple function that can download file links from a website. When running the script on its own, the program will access a 
-#   'urls.txt' file and read entries to be downloaded and removes the entry from the list when complete.
+#Simple function that can download file links from a website. When running the script on its own, the program will access a 'urls.txt' file and read entries to be downloaded and removes the entry from the list when complete.
 
 import urllib.request
 import time
