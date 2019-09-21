@@ -1,3 +1,5 @@
+#Converts IP addresses to binary. NOTE: input must be formatted correctly and be a valid ip address eg. 0.0.0.0 -> 255.255.255.255
+
 def addressToBinary(option = input("What is the address: ")):
     optiontable = option.split(".")
     
