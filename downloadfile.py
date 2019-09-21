@@ -1,7 +1,7 @@
 import urllib.request
 import time
 
-def downloadfile(fileurl):
+def downloadUrlFile(fileurl):
     fileurl = fileurl.strip("\n\r")
     print(f"{time.ctime()} || Sending request to: {fileurl}")
     req = urllib.request.Request(fileurl, headers={'User-Agent': 'Mozilla/5.0'})
@@ -16,9 +16,26 @@ def downloadfile(fileurl):
     print(f"{time.ctime()} || Finished downloading {filename}")
 
 if __name__ == "__main__":
-    file = open("urls.txt", "r")
-    urls = file.readlines()
-    file.close()
+    while True:
+        try:
+            file = open("urls.txt", "r")
+        except FileNotFoundError:
+            file = open("urls.txt", "x")
+            file.close()
+            continue
+        
+        urls = file.readlines()
+        file.close()
+        
+        if len(urls) < 1:
+            break
+        
+        downloadUrlFile(urls[0])
 
-    for url in urls:
-        downloadfile(url)
+        file = open("urls.txt", "w")
+        file.writelines(urls[1:])
+        file.close()
+
+    print(f"{time.ctime()} || List is now empty")
+    input("Press any key to exit...")
+
