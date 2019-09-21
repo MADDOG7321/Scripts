@@ -1,3 +1,5 @@
+#TCP client for receiving files
+
 from socket import *
 
 HOST = "127.0.0.1"
