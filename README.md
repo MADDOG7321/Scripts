@@ -6,6 +6,9 @@ NOTE: input must be formatted correctly and be a valid ip address eg. 0.0.0.0 ->
 ## 'client.py'
 TCP client for receiving files
 
+## 'downloadfile.py'
+Simple script that downloads a list of direct files from a website. When running the script on its own, make a file 'urls.txt' and add entries to be downloaded.
+
 ## 'ping logger for domain computers.ps1'
 A very basic powershell script for logging pings to an IP or domain name. Designed to be run on multiple hosts from a server.
 
