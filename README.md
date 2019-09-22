@@ -7,7 +7,7 @@ NOTE: input must be formatted correctly and be a valid ip address eg. 0.0.0.0 ->
 TCP client for receiving files
 
 ## 'downloadfile.py'
-Simple function that can download file links from a website. When running the script on its own, the program will access a 'urls.txt' file and read entries to be downloaded and removes the entry from the list when complete.
+Simple function that can download files from a website. When running the script on its own, the program will access a 'urls.txt' file and read entries to be downloaded and removes the entry from the list when finished downloading that item.
 
 ## 'ping logger for domain computers.ps1'
 A very basic powershell script for logging pings to an IP or domain name. Designed to be run on multiple hosts from a server.
