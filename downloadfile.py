@@ -4,15 +4,28 @@ import urllib.request
 import time
 
 def downloadUrlFile(fileurl):
-    fileurl = fileurl.strip("\n") #Remove newline characters from the end of lines
+    fileurl = fileurl.strip("\n\r") #Remove newline characters from the end of lines
+
+    iswebpage = False
+    if fileurl[-1:] == "/":
+        fileurl = fileurl[:-1]
+        iswebpage = True
+        
     print(f"{time.ctime()} || Sending request to: {fileurl}")
-    req = urllib.request.Request(fileurl, headers={'User-Agent': 'Mozilla/5.0'}) #Define url request
-    reply = urllib.request.urlopen(req) #Open the url with the request
+    try: #Try contact the webserver
+        req = urllib.request.Request(fileurl, headers={'User-Agent': 'Mozilla/5.0'}) #Define url request
+        reply = urllib.request.urlopen(req) #Open the url with the request
+    except Exception as e:
+        print(f"{time.ctime()} || {e}")
+        return 0
 
     filename = fileurl[fileurl.rfind('/') + 1:] #Get the filename from the url
+    if iswebpage:
+        filename = filename + ".html" #Save as webpage
+    
     print(f"{time.ctime()} || Writing to file {filename}")
     file = open(filename, 'wb') #Create file
-    file.write(reply.read()) #Write to file
+    file.write(reply.read())
     file.close()
 
     print(f"{time.ctime()} || Finished downloading {filename}")
@@ -40,4 +53,3 @@ if __name__ == "__main__": #Independent code when not used as a library
 
     print(f"{time.ctime()} || List is now empty")
     input("Press any key to exit...")
-
