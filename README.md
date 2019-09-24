@@ -9,6 +9,9 @@ TCP client for receiving files
 ## 'downloadfile.py'
 Simple function that can download files from a website. When running the script on its own, the program will access a 'urls.txt' file and read entries to be downloaded and removes the entry from the list when finished downloading that item.
 
+## 'file transfer application.py'
+A file server and client application. Used to serve or receive files. 
+
 ## 'ping logger for domain computers.ps1'
 A very basic powershell script for logging pings to an IP or domain name. Designed to be run on multiple hosts from a server.
 
