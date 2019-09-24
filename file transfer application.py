@@ -92,7 +92,7 @@ def writeLog(entry):
 
 def client():
     SERVER = input("What is the server address: ")
-    ADDRESS = (HOST, PORT)
+    ADDRESS = (SERVER, PORT)
     server = socket(AF_INET, SOCK_STREAM)
     server.connect(ADDRESS)
 
