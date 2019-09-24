@@ -47,38 +47,34 @@ def server():
             writeLog(f"{ctime()} || Complete connection from: {address}")
 
             if client.recv(64).decode("utf-8") != passwd:
-                writeLog(f"Bad password from {address}")
+                writeLog(f"{ctime()} || Bad password from {address}")
                 client.close()
                 continue
-
-            while True:
-                try:
-                    filesindir = os.listdir("ShareFiles/")
-                except:
-                    print(f"{ctime()} || 'ShareFiles' directory not found. Creating directory")
-                    os.mkdir("ShareFiles/")
-                    filesindir = os.listdir("ShareFiles/")
+            
+            try:
+                filesindir = os.listdir("ShareFiles/")
+            except:
+                print(f"{ctime()} || 'ShareFiles' directory not found. Creating directory")
+                os.mkdir("ShareFiles/")
+                filesindir = os.listdir("ShareFiles/")
                     
-                dirstring = ""
-                for x in filesindir:
-                    distring += x + "\n"
+            dirstring = ""
+            for x in filesindir:
+                dirstring += x + "\n"
 
-                while True:
-                    client.send(bytes("What file are you requesting?\n" + dirstring))
-                    reply = lient.recv(4096).decode("utf-8")
-                    if reply != "exit" or reply not in filesindir:
-                        continue
-                    break
+            client.send(bytes("What file are you requesting?\n" + dirstring, "utf-8"))
+            reply = client.recv(4096).decode("utf-8")
 
-                if reply == "exit":
-                    writeLog(f"{ctime()} || Client {coms_address} disconnecting...")
-                    client.close()
-                    continue
+            file = open("ShareFiles/" + reply, "rb")
+            client.send(file.read())
+            file.close()
+            client.close()
+            writeLog(f"{ctime()} || Sent {reply} to {address}\n{ctime()} || Disconnecting client")
 
-                file = open("ShareFiles/" + reply, "rb")
-                client.send(file.read())
-                file.close()
-                
+        except ConnectionResetError:
+            writeLog(f"{ctime()} || Connection was lost")
+            continue
+         
         except KeyboardInterrupt:
             break
         
@@ -91,34 +87,39 @@ def writeLog(entry):
     file.close()
 
 def client():
-    SERVER = input("What is the server address: ")
-    ADDRESS = (SERVER, PORT)
-    server = socket(AF_INET, SOCK_STREAM)
-    server.connect(ADDRESS)
+    try:
+        SERVER = input("What is the server address: ")
+        ADDRESS = (SERVER, PORT)
+        server = socket(AF_INET, SOCK_STREAM)
+        server.connect(ADDRESS)
 
-    server.send(bytes(input("Enter password: ")))
-    reply = server.recv(4096).decode("utf-8")
-    
-    while True:
-        requestfile = input("File to request: ")
-        if requestfile not in reply:
-            print("Error > no valid file entered")
-            continue
-        break
-
-    file = open(requestfile, "wb")
-    
-    server.send(bytes(requestfile))
-
-    while True:
-        data = server.recv(1024)
-        if data:
-            file.write(data)
-        else:
+        server.send(bytes(input("Enter password: "), "utf-8"))
+        reply = server.recv(4096).decode("utf-8")
+        print(reply)
+        
+        while True:
+            requestfile = input("File to request: ")
+            if requestfile not in reply:
+                print("Error > no valid file entered")
+                continue
             break
-    file.close()
+
+        file = open(requestfile, "wb")
     
-    print("Finished downloading file")
+        server.send(bytes(requestfile, "utf-8"))
+
+        while True:
+            data = server.recv(1024)
+            if data:
+                file.write(data)
+            else:
+                break
+        file.close()
+    
+        print("Finished downloading file\n\n")
+
+    except ConnectionResetError:
+        print(f"{ctime()} || Connection was lost")
         
 while True:
     option = input("1   Host connection.\n2   Join existing connection.\n3   Exit\n")
