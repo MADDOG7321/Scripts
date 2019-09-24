@@ -1,5 +1,3 @@
-#TCP server for sending files
-
 from socket import *
 from time import ctime
 import os
@@ -7,10 +5,8 @@ import sys
 
 passwd = "Password10"
 
-SERVER_HOST = "127.0.0.1"
-
-COMS_PORT = 4300
-FILE_PORT = COMS_PORT + 1
+SERVER = "127.0.0.1"
+PORT = 4300
 
 def server():
     os.system("ipconfig > temp.txt")
@@ -29,70 +25,64 @@ def server():
         IPstring += ip + "\n"
 
     while True:      
-        option = input("What IP address are you using for this action?\n" + IPstring)
+        option = input("What IP address are you using to host the server?\n" + IPstring)
         if option not in IPs:
             continue
         break
 
-    SERVER_HOST = option
+    SERVER = option
 
-    COMS_ADDRESS = (SERVER_HOST, COMS_PORT)
-    FILE_ADDRESS = (SERVER_HOST, FILE_PORT)
+    ADDRESS = (SERVER, PORT)
     
-    coms_server = socket(AF_INET, SOCK_STREAM)
-    coms_server.bind(COMS_ADDRESS)
-    coms_server.listen(1)
+    server = socket(AF_INET, SOCK_STREAM)
+    server.bind(ADDRESS)
+    server.listen(1)
 
-    file_server = socket(AF_INET, SOCK_STREAM)
-    file_server.bind(FILE_ADDRESS)
-    file_server.listen(1)
-
-    connections = input("How many connections do you wish to allow? (0 = infinite): ")
-
-    writeLog(f"{ctime()} || ### STARTING SERVER ###\n{ctime()} || >Server bound to {COMS_ADDRESS}\n{ctime()} || >Listening...\n")
+    writeLog(f"{ctime()} || ### STARTING SERVER ###\n{ctime()} || >Server bound to {ADDRESS}")
     while True:
         try:
             print(f"{ctime()} || Waiting for connection...")
-            coms_client, coms_address = coms_server.accept()
-            file_client, file_address = file_server.accept()
-            writeLog(f"{ctime()} || Complete connection from: {coms_address}")
+            client, address = server.accept()
+            
+            writeLog(f"{ctime()} || Complete connection from: {address}")
+
+            if client.recv(64).decode("utf-8") != passwd:
+                writeLog(f"Bad password from {address}")
+                client.close()
+                continue
 
             while True:
-                if client.recv(64).decode("utf-8") != passwd:
-                    writeLog(f"Bad password from {coms_address}")
-                    coms_client.close()
-                    file_client.close()
-                    break
-
                 try:
                     filesindir = os.listdir("ShareFiles/")
                 except:
-                    print("{ctime()} || 'ShareFiles' directory not found. Creating directory")
+                    print(f"{ctime()} || 'ShareFiles' directory not found. Creating directory")
+                    os.mkdir("ShareFiles/")
+                    filesindir = os.listdir("ShareFiles/")
+                    
                 dirstring = ""
                 for x in filesindir:
                     distring += x + "\n"
-                
-                requestfile = talkprotocol(coms_client, "What file are you requesting?\n" + dirstring, file)
 
-                file = open("ShareFiles/" + requestfile, "rb")
-                file_client.send(file.read())
+                while True:
+                    client.send(bytes("What file are you requesting?\n" + dirstring))
+                    reply = lient.recv(4096).decode("utf-8")
+                    if reply != "exit" or reply not in filesindir:
+                        continue
+                    break
+
+                if reply == "exit":
+                    writeLog(f"{ctime()} || Client {coms_address} disconnecting...")
+                    client.close()
+                    continue
+
+                file = open("ShareFiles/" + reply, "rb")
+                client.send(file.read())
                 file.close()
-                file_client.close()
                 
         except KeyboardInterrupt:
             break
         
     print(f"{ctime()} || ### SERVER SHUTTING DOWN ###\n")
-
-def talkprotocol(client, data, expectedReply):
-    while True:
-        client.send(bytes(data))
-        reply = client.recv(4096).decode("utf-8")
-        if reply != expectedReply or reply not in expectedReply:
-            continue
-        
-        break
-    return reply
 
 def writeLog(entry):
     print(entry)
@@ -101,21 +91,35 @@ def writeLog(entry):
     file.close()
 
 def client():
-    SERVER_HOST = input("What is the server address? ")
+    SERVER = input("What is the server address: ")
+    ADDRESS = (HOST, PORT)
+    server = socket(AF_INET, SOCK_STREAM)
+    server.connect(ADDRESS)
 
-    COMS_ADDRESS = (SERVER_HOST, COMS_PORT)
-    FILE_ADDRESS = (SERVER_HOST, FILE_PORT)
-
-    coms_server = socket(AF_INET, SOCK_STREAM)
-    file_server = socket(AF_INET, SOCK_STREAM)
-
-    coms_server.connect(COMS_ADDRESS)
-    file_server.connect(FILE_ADDRESS)
-
-    coms_server.send(bytes(input("Enter the password: ")))
-    server.recv(4096
+    server.send(bytes(input("Enter password: ")))
+    reply = server.recv(4096).decode("utf-8")
     
+    while True:
+        requestfile = input("File to request: ")
+        if requestfile not in reply:
+            print("Error > no valid file entered")
+            continue
+        break
 
+    file = open(requestfile, "wb")
+    
+    server.send(bytes(requestfile))
+
+    while True:
+        data = server.recv(1024)
+        if data:
+            file.write(data)
+        else:
+            break
+    file.close()
+    
+    print("Finished downloading file")
+        
 while True:
     option = input("1   Host connection.\n2   Join existing connection.\n3   Exit\n")
     if option == "1":
