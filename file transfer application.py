@@ -9,16 +9,27 @@ SERVER = "127.0.0.1"
 PORT = 4300
 
 def server():
-    os.system("ipconfig > temp.txt")
+    iswindows = os.system("ipconfig > temp.txt")
+    os.system("ifconfig > temp.txt")
     file = open("temp.txt", "r")
     strings = file.readlines()
     file.close()
 
-    IPs = ["127.0.0.1",]
+    IPs = []
+    if iswindows == 0:
+        IPs.append("127.0.0.1")
+        
     for x in strings:
-        findvar = x.find("IPv4 Address")
-        if findvar > -1:
-            IPs.append(x[x.find(":") + 2:].strip("\n"))
+        if iswindows == 0:
+            findvar = x.find("IPv4 Address")
+            if findvar > -1:
+                IPs.append(x[x.find(":") + 2:].strip("\n"))
+        else:
+            findvar = x.find("inet ")
+            if findvar > -1:
+                IPs.append(x[x.find("inet ") + 5:x.find("netmask") - 2])
+
+    print(IPs)
     
     IPstring = ""
     for ip in IPs:
@@ -95,11 +106,20 @@ def client():
 
         server.send(bytes(input("Enter password: "), "utf-8"))
         reply = server.recv(4096).decode("utf-8")
+        reply = reply[:-1]
         print(reply)
+
+        fileschoice = reply.split("\n")
+        print(fileschoice)
         
         while True:
             requestfile = input("File to request: ")
-            if requestfile not in reply:
+            if requestfile not in fileschoice:
+                print("Error > no valid file entered")
+                continue
+            try:
+                file = open(requestfile, "wb")
+            except FileNotFoundError:
                 print("Error > no valid file entered")
                 continue
             break
